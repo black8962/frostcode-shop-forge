@@ -29,7 +29,7 @@ export function Header({ onSearch, cartCount }: HeaderProps) {
       <div className="container flex h-16 items-center">
         {/* Logo */}
         <div className="mr-6">
-          <h1 className="text-2xl font-bold text-primary">фростcode</h1>
+          <h1 className="text-2xl font-bold text-primary">фросткод</h1>
         </div>
 
         {/* Desktop Navigation */}
@@ -60,7 +60,14 @@ export function Header({ onSearch, cartCount }: HeaderProps) {
         </form>
 
         {/* Cart */}
-        <Button variant="outline" size="icon" className="relative ml-2">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="relative ml-2"
+          onClick={() => {
+            alert(`В корзине товаров: ${cartCount}`);
+          }}
+        >
           <ShoppingCart className="h-4 w-4" />
           {cartCount > 0 && (
             <span className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
