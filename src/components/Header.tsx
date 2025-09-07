@@ -1,14 +1,27 @@
 import { useState } from "react";
-import { Search, ShoppingCart, Menu, X } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CartDrawer } from "@/components/CartDrawer";
+
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  quantity: number;
+}
 
 interface HeaderProps {
   onSearch: (query: string) => void;
   cartCount: number;
+  cartItems: CartItem[];
+  onUpdateQuantity: (id: string, quantity: number) => void;
+  onRemoveItem: (id: string) => void;
+  onClearCart: () => void;
 }
 
-export function Header({ onSearch, cartCount }: HeaderProps) {
+export function Header({ onSearch, cartCount, cartItems, onUpdateQuantity, onRemoveItem, onClearCart }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -60,21 +73,13 @@ export function Header({ onSearch, cartCount }: HeaderProps) {
         </form>
 
         {/* Cart */}
-        <Button 
-          variant="outline" 
-          size="icon" 
-          className="relative ml-2"
-          onClick={() => {
-            alert(`В корзине товаров: ${cartCount}`);
-          }}
-        >
-          <ShoppingCart className="h-4 w-4" />
-          {cartCount > 0 && (
-            <span className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
-              {cartCount}
-            </span>
-          )}
-        </Button>
+        <CartDrawer
+          cartCount={cartCount}
+          cartItems={cartItems}
+          onUpdateQuantity={onUpdateQuantity}
+          onRemoveItem={onRemoveItem}
+          onClearCart={onClearCart}
+        />
 
         {/* Mobile menu button */}
         <Button

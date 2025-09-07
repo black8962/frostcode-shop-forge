@@ -7,11 +7,21 @@ import { Footer } from "@/components/Footer";
 import { products, categories, getProductsByCategory, getFeaturedProducts, Product } from "@/data/products";
 import { useToast } from "@/hooks/use-toast";
 
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  quantity: number;
+}
+
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [cartCount, setCartCount] = useState(0);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [filteredProducts, setFilteredProducts] = useState(products);
   const { toast } = useToast();
+  
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
     if (searchQuery.trim() === "") {
@@ -31,17 +41,69 @@ const Index = () => {
   };
 
   const handleAddToCart = (product: Product) => {
-    setCartCount(prev => prev + 1);
+    setCartItems(prev => {
+      const existingItem = prev.find(item => item.id === product.id);
+      if (existingItem) {
+        return prev.map(item =>
+          item.id === product.id 
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prev, {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity: 1
+      }];
+    });
+    
     toast({
       title: "товар добавлен в корзину",
       description: `${product.name} успешно добавлен в корзину`,
     });
   };
 
+  const handleUpdateQuantity = (id: string, quantity: number) => {
+    if (quantity === 0) {
+      handleRemoveItem(id);
+      return;
+    }
+    setCartItems(prev =>
+      prev.map(item =>
+        item.id === id ? { ...item, quantity } : item
+      )
+    );
+  };
+
+  const handleRemoveItem = (id: string) => {
+    setCartItems(prev => prev.filter(item => item.id !== id));
+    toast({
+      title: "товар удален",
+      description: "товар успешно удален из корзины",
+    });
+  };
+
+  const handleClearCart = () => {
+    setCartItems([]);
+    toast({
+      title: "корзина очищена",
+      description: "все товары удалены из корзины",
+    });
+  };
+
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <div className="min-h-screen bg-background">
-        <Header onSearch={handleSearch} cartCount={cartCount} />
+        <Header 
+          onSearch={handleSearch} 
+          cartCount={cartCount}
+          cartItems={cartItems}
+          onUpdateQuantity={handleUpdateQuantity}
+          onRemoveItem={handleRemoveItem}
+          onClearCart={handleClearCart}
+        />
         
         {searchQuery.trim() === "" ? (
           <>
